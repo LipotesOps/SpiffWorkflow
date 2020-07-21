@@ -96,22 +96,37 @@ class ExclusiveGatewayParser(TaskParser):
             super(ExclusiveGatewayParser, self).connect_outgoing(
                 outgoing_task, outgoing_task_node, sequence_flow_node,
                 is_default)
-        else:
-            cond = self.parser._parse_condition(
+        # else:
+        #     cond = self.parser._parse_condition(
+        #         outgoing_task, outgoing_task_node, sequence_flow_node,
+        #         task_parser=self)
+        #     if cond is None:
+        #         raise ValidationException(
+        #             'Non-default exclusive outgoing sequence flow '
+        #             ' without condition',
+        #             sequence_flow_node,
+        #             self.process_parser.filename)
+        #     self.task.connect_outgoing_if(
+        #         cond, outgoing_task,
+        #         sequence_flow_node.get('id'),
+        #         sequence_flow_node.get('name', None),
+        #         self.parser._parse_documentation(
+        #             sequence_flow_node, task_parser=self))
+        cond = self.parser._parse_condition(
                 outgoing_task, outgoing_task_node, sequence_flow_node,
                 task_parser=self)
-            if cond is None:
-                raise ValidationException(
-                    'Non-default exclusive outgoing sequence flow '
-                    ' without condition',
-                    sequence_flow_node,
-                    self.process_parser.filename)
-            self.task.connect_outgoing_if(
-                cond, outgoing_task,
-                sequence_flow_node.get('id'),
-                sequence_flow_node.get('name', None),
-                self.parser._parse_documentation(
-                    sequence_flow_node, task_parser=self))
+        if cond is None:
+            raise ValidationException(
+                'Non-default exclusive outgoing sequence flow '
+                ' without condition',
+                sequence_flow_node,
+                self.process_parser.filename)
+        self.task.connect_outgoing_if(
+            cond, outgoing_task,
+            sequence_flow_node.get('id'),
+            sequence_flow_node.get('name', None),
+            self.parser._parse_documentation(
+                sequence_flow_node, task_parser=self))
 
     def handles_multiple_outgoing(self):
         return True

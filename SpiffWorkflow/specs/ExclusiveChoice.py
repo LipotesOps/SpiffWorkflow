@@ -78,11 +78,15 @@ class ExclusiveChoice(MultiChoice):
     def _on_complete_hook(self, my_task):
         # Find the first matching condition.
         output = self._wf_spec.get_task_spec_from_name(self.default_task_spec)
+        only_one = 0
         for condition, spec_name in self.cond_task_specs:
             if condition is None or condition._matches(my_task):
                 output = self._wf_spec.get_task_spec_from_name(spec_name)
-                break
-
+                only_one += 1
+        if only_one == 0:
+            raise WorkflowException(self, 'A least one condition true is required.')
+        if only_one > 1:
+            raise WorkflowException(self, 'More than one condition true is happened.')
         my_task._sync_children([output], Task.FUTURE)
         for child in my_task.children:
             child.task_spec._update(child)
